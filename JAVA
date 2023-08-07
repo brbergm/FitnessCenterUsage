@@ -1,0 +1,43 @@
+const sheetUrl = 'YOUR_PUBLISHED_GOOGLE_SHEET_URL';
+
+async function fetchSheetData() {
+  const response = await fetch(sheetUrl);
+  const text = await response.text();
+  const lines = text.split(/\r?\n/);
+  const data = [];
+
+  lines.forEach((line) => {
+    const values = line.split(',');
+    const date = values[0];
+    const time = values[1];
+    const headcount = parseInt(values[2]);
+
+    if (!isNaN(headcount)) {
+      data.push({ date, time, headcount });
+    }
+  });
+
+  return data;
+}
+
+async function displayData() {
+  const usageData = await fetchSheetData();
+  const usageDiv = document.getElementById('usage-data');
+
+  if (usageData.length === 0) {
+    usageDiv.innerText = 'No data available.';
+    return;
+  }
+
+  let tableHTML = '<table><tr><th>Date</th><th>Time</th><th>Headcount</th></tr>';
+
+  usageData.forEach((entry) => {
+    tableHTML += `<tr><td>${entry.date}</td><td>${entry.time}</td><td>${entry.headcount}</td></tr>`;
+  });
+
+  tableHTML += '</table>';
+
+  usageDiv.innerHTML = tableHTML;
+}
+
+displayData();
